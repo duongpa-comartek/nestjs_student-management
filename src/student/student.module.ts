@@ -9,5 +9,5 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   controllers: [StudentController],
   providers: [StudentService]
 })
+
 export class StudentModule { }
-export { Student } from './student.entity';

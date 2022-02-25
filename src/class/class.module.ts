@@ -9,5 +9,5 @@ import { Class } from './class.entity'
   controllers: [ClassController],
   providers: [ClassService]
 })
+
 export class ClassModule { }
-export { Class } from './class.entity'

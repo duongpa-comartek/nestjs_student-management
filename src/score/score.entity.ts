@@ -1,22 +1,23 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { Student } from '../student/student.module';
-import { Subject } from '../subject/subject.module';
+import { Subject } from '../subject/subject.entity';
+import { Student } from '../student/student.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity()
 export class Score {
-
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: false })
+    @Column({
+        type: 'float',
+        nullable: false
+    })
     score: number;
 
-    @Column({ nullable: false })
     @ManyToOne(() => Student, student => student.id)
+    @JoinColumn({ name: "studentId" })
     studentId: number;
 
-    @Column({ nullable: false })
     @ManyToOne(() => Subject, subject => subject.id)
+    @JoinColumn({ name: "subjectId" })
     subjectId: number;
-
 }

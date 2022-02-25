@@ -1,27 +1,39 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
-import { Class } from '../class/class.module'
-import { Score } from '../score/score.module'
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Class } from '../class/class.entity'
+
+export type TypeGender = "Male" | "Female" | "Other";
 
 @Entity()
 export class Student {
-
     @PrimaryGeneratedColumn()
-    @OneToMany(() => Score, score => score.studentId)
     id: number;
 
-    @Column({ length: 50, nullable: false })
+    @Column({
+        type: "varchar",
+        length: 100,
+        nullable: false
+    })
     name: string;
 
-    @Column('date', { nullable: false })
+    @Column({
+        type: 'date',
+        nullable: false
+    })
     dob: Date;
 
-    @Column({ nullable: false })
-    gender: string;
+    @Column({
+        type: "enum",
+        enum: ["Male", "Female", "Other"],
+        default: "Male"
+    })
+    gender: TypeGender;
 
     @Column({ nullable: false })
     email: string;
 
-    @Column({ nullable: false })
-    @ManyToOne(() => Class, c => c.id)
+    @ManyToOne(() => Class, classEntity => classEntity.id)
+    @JoinColumn({
+        name: 'classId'
+    })
     classId: number;
 }

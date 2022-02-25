@@ -1,16 +1,18 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class CreateClassDto {
-    @IsNumber()
-    readonly id: number;
-
     @IsString()
+    @MinLength(1)
+    @MaxLength(50)
     readonly name: string;
 
     @IsNumber()
-    readonly dob: number;
+    @Min(20)
+    @Max(50)
+    readonly totalMember: number;
 
     @IsString()
+    @MinLength(10)
+    @MaxLength(100)
     readonly teacherName: string;
 }
-

@@ -9,5 +9,5 @@ import { Score } from './score.entity'
   controllers: [ScoreController],
   providers: [ScoreService]
 })
+
 export class ScoreModule { }
-export { Score } from './score.entity'

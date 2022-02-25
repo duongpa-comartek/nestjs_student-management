@@ -1,21 +1,29 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateScoreDto, DeleteScoreDto, UpdateScoreDto } from './dto';
+import { Score } from './score.entity';
 
 @Injectable()
 export class ScoreService {
-    public async getAll() {
-        return true;
+    constructor(
+        @InjectRepository(Score)
+        private scoreRepository: Repository<Score>
+    ) { }
+
+    public async getAll(): Promise<Score[]> {
+        return this.scoreRepository.find();
     }
 
-    public async create(createScoreDto: CreateScoreDto) {
-        return true;
+    public async create(createScoreDto: CreateScoreDto): Promise<void> {
+        await this.scoreRepository.save(createScoreDto);
     }
 
-    public async update({ id, ...updateScoreDto }: UpdateScoreDto) {
-        return true;
+    public async update({ id, ...updateScoreDto }: UpdateScoreDto): Promise<void> {
+        await this.scoreRepository.update({ id }, updateScoreDto);
     }
 
-    public async delete(param: DeleteScoreDto) {
-        return true;
+    public async delete(param: DeleteScoreDto): Promise<void> {
+        await this.scoreRepository.delete(+param.id);
     }
 }
