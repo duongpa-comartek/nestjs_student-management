@@ -1,16 +1,23 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Score } from '../score/score.module';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+
+export type TypeSubject = "Online" | "Offline";
 
 @Entity()
 export class Subject {
-
     @PrimaryGeneratedColumn()
-    @OneToMany(() => Score, score => score.subjectId)
     id: number;
 
-    @Column({ nullable: false })
+    @Column({
+        type: "varchar",
+        length: 50,
+        nullable: false
+    })
     name: string;
 
-    @Column({ nullable: false })
-    type: string;
+    @Column({
+        type: "enum",
+        enum: ["Online", "Offline"],
+        default: "Online"
+    })
+    type: TypeSubject;
 }

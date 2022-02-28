@@ -1,15 +1,19 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, IsDate, IsEmail } from 'class-validator';
+import { IsEnum, IsNumber, IsString, IsDate, IsEmail, IsOptional, Length } from 'class-validator';
+import { TypeGender } from '../student.entity';
 
 export class UpdateStudentDto {
     @IsNumber()
     readonly id!: number;
 
     @IsString()
+    @Length(10, 100)
+    @IsOptional()
     readonly name?: string;
 
     @Type(() => Date)
     @IsDate()
+    @IsOptional()
     readonly dob?: Date;
 
     @IsEnum({
@@ -17,12 +21,14 @@ export class UpdateStudentDto {
         FEMALE: 'Female',
         OTHER: 'Other',
     })
-    readonly gender?: string;
+    @IsOptional()
+    readonly gender?: TypeGender;
 
     @IsEmail()
+    @IsOptional()
     readonly email?: string;
 
     @IsNumber()
+    @IsOptional()
     readonly classId?: number;
 }
-

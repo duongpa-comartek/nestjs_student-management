@@ -9,5 +9,5 @@ import { Subject } from './subject.entity';
   controllers: [SubjectController],
   providers: [SubjectService]
 })
+
 export class SubjectModule { }
-export { Subject } from './subject.entity'

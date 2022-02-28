@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Delete, Param, Patch } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto } from './dto/index'
-import { Student } from './student.entity';
 
 @Controller('student')
 export class StudentController {
@@ -28,5 +27,4 @@ export class StudentController {
     async delete(@Param() param: DeleteStudentDto) {
         return this.service.delete(param);
     }
-
 }

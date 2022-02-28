@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { StudentModule, Student } from './student/student.module';
-import { ClassModule, Class } from './class/class.module';
-import { ScoreModule, Score } from './score/score.module';
-import { SubjectModule, Subject } from './subject/subject.module';
+import { StudentModule } from './student/student.module';
+import { ClassModule } from './class/class.module';
+import { ScoreModule } from './score/score.module';
+import { SubjectModule } from './subject/subject.module';
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Connection, getConnectionOptions } from 'typeorm';
+import { ControllerModule } from './service/controller/controller.module';
+import { EnvModule } from './env/env.module';
 
 @Module({
   imports: [
@@ -14,21 +16,19 @@ import { Connection, getConnectionOptions } from 'typeorm';
     ClassModule,
     ScoreModule,
     SubjectModule,
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '123456',
-      database: 'student',
-      entities: [Class, Student, Score, Subject],
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      useFactory: async () =>
+        Object.assign(await getConnectionOptions(), {
+          autoLoadEntities: true,
+          synchronize: true,
+        }),
     }),
-
+    ControllerModule,
+    EnvModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-
+  constructor(private connection: Connection) { }
 }

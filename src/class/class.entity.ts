@@ -1,19 +1,27 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Student } from '../student/student.module'
 
 @Entity()
 export class Class {
-
     @PrimaryGeneratedColumn()
-    @OneToMany(() => Student, student => student.classId)
     id: number;
 
-    @Column({ length: 50, nullable: false })
+    @Column({
+        type: 'varchar',
+        length: 50,
+        nullable: false
+    })
     name: string;
 
-    @Column({ nullable: false })
+    @Column({
+        type: 'int',
+        default: 20
+    })
     totalMember: number;
 
-    @Column({ nullable: false })
+    @Column({
+        type: 'varchar',
+        length: 100,
+        nullable: false
+    })
     teacherName: string;
 }
