@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Score } from 'src/score/score.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 export type TypeSubject = "Online" | "Offline";
 
@@ -20,4 +21,7 @@ export class Subject {
         default: "Online"
     })
     type: TypeSubject;
+
+    @OneToMany(() => Score, score => score.subject)
+    scores: Score
 }

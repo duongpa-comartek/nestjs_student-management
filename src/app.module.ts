@@ -7,8 +7,6 @@ import { ScoreModule } from './score/score.module';
 import { SubjectModule } from './subject/subject.module';
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Connection, getConnectionOptions } from 'typeorm';
-import { ControllerModule } from './service/controller/controller.module';
-import { EnvModule } from './env/env.module';
 
 @Module({
   imports: [
@@ -21,10 +19,9 @@ import { EnvModule } from './env/env.module';
         Object.assign(await getConnectionOptions(), {
           autoLoadEntities: true,
           synchronize: true,
+          logging: true
         }),
     }),
-    ControllerModule,
-    EnvModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import { IsNumber, IsOptional, Max, Min } from 'class-validator';
 
 export class UpdateScoreDto {
@@ -10,11 +11,13 @@ export class UpdateScoreDto {
     @IsOptional()
     readonly score?: number;
 
+    @Expose({ name: 'studentId' })
     @IsNumber()
     @IsOptional()
-    readonly studentId?: number;
+    readonly student?: number;
 
+    @Expose({ name: 'subjectId' })
     @IsNumber()
     @IsOptional()
-    readonly subjectId?: number;
+    readonly subject?: number;
 }

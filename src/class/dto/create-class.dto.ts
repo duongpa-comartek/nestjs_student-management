@@ -7,7 +7,7 @@ export class CreateClassDto {
     readonly name: string;
 
     @IsNumber()
-    @Min(20)
+    @Min(10)
     @Max(50)
     readonly totalMember: number;
 
