@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Patch, Post, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Param, Query } from '@nestjs/common';
 import { ClassService } from './class.service';
-import { CreateClassDto, UpdateClassDto, DeleteClassDto } from './dto/index'
+import { CreateClassDto, UpdateClassDto, DeleteClassDto, FindStudentInfoByNameDto } from './dto/index'
 
 @Controller('class')
 export class ClassController {
@@ -9,6 +9,11 @@ export class ClassController {
     @Get()
     async getAll() {
         return this.service.getAll();
+    }
+
+    @Get('students')
+    async getStudents() {
+        return this.service.getStudents();
     }
 
     @Post()
@@ -24,5 +29,10 @@ export class ClassController {
     @Delete(':id')
     async delete(@Param() param: DeleteClassDto) {
         return this.service.delete(param);
+    }
+
+    @Get('findStudent')
+    async getStudentByName(@Query() query: FindStudentInfoByNameDto) {
+        return this.service.getStudentByName(query);
     }
 }

@@ -13,11 +13,11 @@ export class Score {
     })
     score: number;
 
-    @ManyToOne(() => Student, student => student.id)
+    @ManyToOne(() => Student, student => student.scores)
     @JoinColumn({ name: "studentId" })
-    studentId: number;
+    student: Student;
 
-    @ManyToOne(() => Subject, subject => subject.id)
+    @ManyToOne(() => Subject, subject => subject.scores)
     @JoinColumn({ name: "subjectId" })
-    subjectId: number;
+    subject: Subject;
 }

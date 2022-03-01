@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsString, IsDate, IsEmail, IsOptional, Length } from 'class-validator';
 import { TypeGender } from '../student.entity';
 
@@ -28,7 +28,8 @@ export class UpdateStudentDto {
     @IsOptional()
     readonly email?: string;
 
+    @Expose({ name: 'classId' })
     @IsNumber()
     @IsOptional()
-    readonly classId?: number;
+    readonly class?: number;
 }

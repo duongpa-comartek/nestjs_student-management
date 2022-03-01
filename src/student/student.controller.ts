@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Delete, Param, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Param, Patch, Query } from '@nestjs/common';
 import { StudentService } from './student.service';
-import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto } from './dto/index'
+import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto, FindStudentByNameDto, FindGoodStudentOfClass } from './dto/index'
 
 @Controller('student')
 export class StudentController {
@@ -13,8 +13,7 @@ export class StudentController {
 
     @Post()
     async create(@Body() student: CreateStudentDto) {
-        console.log(student);
-        return this.service.create(student);
+        await this.service.create(student);
     }
 
     @Patch()
@@ -27,4 +26,15 @@ export class StudentController {
     async delete(@Param() param: DeleteStudentDto) {
         return this.service.delete(param);
     }
+
+    @Get('goodStudentOfClass')
+    async getGoodStudents(@Query() query: FindGoodStudentOfClass) {
+        return this.service.getGoodStudents(query);
+    }
+
+    @Get('findName')
+    async getByName(@Query() query: FindStudentByNameDto) {
+        return this.service.getByName(query);
+    }
+
 }

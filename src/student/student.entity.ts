@@ -1,3 +1,4 @@
+import { Score } from 'src/score/score.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Class } from '../class/class.entity'
 
@@ -31,9 +32,10 @@ export class Student {
     @Column({ nullable: false })
     email: string;
 
-    @ManyToOne(() => Class, classEntity => classEntity.id)
-    @JoinColumn({
-        name: 'classId'
-    })
-    classId: number;
+    @ManyToOne(() => Class, classEntity => classEntity.students)
+    @JoinColumn({ name: "classId" })
+    class: Class;
+
+    @OneToMany(() => Score, score => score.student)
+    scores: Score[];
 }
