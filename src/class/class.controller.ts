@@ -1,38 +1,58 @@
-import { Body, Controller, Delete, Get, Patch, Post, Param, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Param, Query, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
+import { StudentService } from 'src/student/student.service';
 import { ClassService } from './class.service';
 import { CreateClassDto, UpdateClassDto, DeleteClassDto, FindStudentInfoByNameDto } from './dto/index'
 
 @Controller('class')
 export class ClassController {
-    constructor(private service: ClassService) { }
+    constructor(
+        private readonly classService: ClassService,
+
+        @Inject(forwardRef(() => StudentService))
+        private readonly studentService: StudentService
+    ) { }
 
     @Get()
     async getAll() {
-        return this.service.getAll();
+        return this.classService.getAll();
     }
 
     @Get('students')
     async getStudents() {
-        return this.service.getStudents();
+        return this.classService.getListStudents();
     }
 
     @Post()
     async create(@Body() createClassDto: CreateClassDto) {
-        return this.service.create(createClassDto);
+        return this.classService.create(createClassDto);
     }
 
     @Patch()
     async update(@Body() createClassDto: UpdateClassDto) {
-        return this.service.update(createClassDto);
+        return this.classService.update(createClassDto);
     }
 
     @Delete(':id')
     async delete(@Param() param: DeleteClassDto) {
-        return this.service.delete(param);
+        const student = await this.studentService.findStudentClassById(+param.id);
+        if (student) {
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: `Bad Request: Class has students!`,
+            }, HttpStatus.BAD_REQUEST);
+        }
+        const _class = await this.classService.findOneById(+param.id);
+        if (!_class) {
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: `Bad Request: Class does not exist!`,
+            }, HttpStatus.BAD_REQUEST);
+        }
+        return this.classService.delete(param);
     }
 
     @Get('findStudent')
     async getStudentByName(@Query() query: FindStudentInfoByNameDto) {
-        return this.service.getStudentByName(query);
+        return this.classService.getStudentByName(query);
     }
 }

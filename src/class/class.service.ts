@@ -3,7 +3,6 @@ import { CreateClassDto, DeleteClassDto, UpdateClassDto, FindStudentInfoByNameDt
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Class } from './class.entity';
-import { Student } from 'src/student/student.entity';
 
 @Injectable()
 export class ClassService {
@@ -16,7 +15,11 @@ export class ClassService {
         return this.classRepository.find();
     }
 
-    public async getStudents() {
+    public async findOneById(id: number) {
+        return this.classRepository.findOne({ id });
+    }
+
+    public async getListStudents() {
         return await this.classRepository
             .createQueryBuilder("cls")
             .addSelect("cls.name", "student.name")
@@ -36,18 +39,7 @@ export class ClassService {
     }
 
     public async delete({ id }: DeleteClassDto): Promise<void> {
-        try {
-            await this.classRepository.delete(+id);
-        } catch (err) {
-            if (err.driverError.code === 'ER_NO_REFERENCED_ROW_2') {
-                throw new HttpException({
-                    status: HttpStatus.BAD_REQUEST,
-                    error: 'Cannot delete a student row: a foreign key constraint fails',
-                }, HttpStatus.BAD_REQUEST);
-            } else {
-                throw err;
-            }
-        }
+        await this.classRepository.delete(+id);
     }
 
     public async getStudentByName({ name }: FindStudentInfoByNameDto) {

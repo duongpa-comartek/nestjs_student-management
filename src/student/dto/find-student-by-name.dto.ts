@@ -1,4 +1,4 @@
-import { IsString, Length } from 'class-validator';
+import { IsNumberString, IsString, Length } from 'class-validator';
 
 export class FindStudentByNameDto {
     @IsString()
