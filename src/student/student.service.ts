@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto, FindStudentByNameDto, FindGoodStudentOfClass } from './dto/index';
+import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto, FindStudentByNameDto, FindGoodStudentOfClass, GetStudentsFilterOutcome } from './dto/index';
 import { Student } from './student.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
@@ -19,23 +19,23 @@ export class StudentService {
         return this.studentRepository.find();
     }
 
+    public async findOneById(id: number) {
+        return this.studentRepository.findOne(id);
+    }
+
+    public async findStudentClassById(classId: number) {
+        const _class = {
+            id: classId
+        } as Class;
+        return this.studentRepository.findOne({ class: _class });
+    }
+
     public async create({ class: _class, ...createStudentDto }: CreateStudentDto): Promise<void> {
-        try {
-            const newStudent = {
-                ...createStudentDto,
-                class: { id: _class } as Class
-            }
-            await this.studentRepository.insert(newStudent);
-        } catch (err) {
-            if (err.driverError.code === 'ER_NO_REFERENCED_ROW_2') {
-                throw new HttpException({
-                    status: HttpStatus.BAD_REQUEST,
-                    error: 'Cannot add a student row: a foreign key (classId) constraint fails',
-                }, HttpStatus.BAD_REQUEST);
-            } else {
-                throw err;
-            }
+        const newStudent = {
+            ...createStudentDto,
+            class: { id: _class } as Class
         }
+        await this.studentRepository.insert(newStudent);
     }
 
     public async update({ id, class: _class, ...updateStudentDto }: UpdateStudentDto): Promise<void> {
@@ -47,43 +47,34 @@ export class StudentService {
     }
 
     public async delete(param: DeleteStudentDto): Promise<void> {
-        try {
-            await this.studentRepository.delete(+param.id);
-        } catch (err) {
-
-            if (err.driverError.code === 'ER_NO_REFERENCED_ROW_2') {
-                throw new HttpException({
-                    status: HttpStatus.BAD_REQUEST,
-                    error: 'Cannot delete a student row: a foreign key constraint fails',
-                }, HttpStatus.BAD_REQUEST);
-            } else {
-                throw err;
-            }
-        }
+        await this.studentRepository.delete(+param.id);
     }
 
-    public async getGoodStudents({ name }: FindGoodStudentOfClass) {
+    public async getGoodStudents(findGoodStudentOfClass: FindGoodStudentOfClass) {
+        const className = findGoodStudentOfClass.name;
+        const limit = (findGoodStudentOfClass.limit) ? findGoodStudentOfClass.limit : 10;
+        const offset = (findGoodStudentOfClass.offset) ? findGoodStudentOfClass.offset : 0;
         return await this.studentRepository
             .createQueryBuilder("std")
             .select(
                 [
-                    "std.name",
+                    "std.name"
                 ]
             )
             .leftJoin("std.class", "class")
-            .leftJoin(
+            .leftJoinAndSelect(
                 subQuery => {
                     return subQuery
                         .select("studentId")
                         .addSelect("MIN(score)", "minscore")
                         .from(Score, "s")
                         .groupBy("studentId")
-                }, "min", "min.studentId = std.id"
+                }, "info", "info.studentId = std.id"
             )
-            .where("min.minscore > :min", { min: 8.5 })
-            .andWhere("class.name = :c", { c: name })
-            .skip(0)
-            .take(0)
+            .where("info.minscore > :min", { min: 8.5 })
+            .andWhere("class.name = :name", { name: className })
+            .offset(offset)
+            .limit(limit)
             .getMany();
     }
 
@@ -91,5 +82,32 @@ export class StudentService {
         console.log(query.name);
         const student = await this.studentRepository.findOne({ name: query.name });
         return student;
+    }
+
+    public async getListOutcomes(getListOutcomes: GetStudentsFilterOutcome) {
+        const limit = (getListOutcomes.limit) ? getListOutcomes.limit : 10;
+        const offset = (getListOutcomes.offset) ? getListOutcomes.offset : 0;
+        const kindof = getListOutcomes.kindof;
+        return await this.studentRepository
+            .createQueryBuilder("std")
+            .select("std.name")
+            .leftJoinAndSelect(
+                subQuery => {
+                    return subQuery
+                        .select("studentId")
+                        .addSelect("ROUND(AVG(score),2)", "avgScore")
+                        .addSelect(`CASE
+                                    WHEN ROUND(AVG(score),2) >= 8 THEN 'Good'
+                                    WHEN ROUND(AVG(score),2) > 5 AND ROUND(AVG(score),2) < 8 THEN 'Average'
+                                    ELSE 'Bad'
+                                END`, "outcome")
+                        .from(Score, "score")
+                        .groupBy("studentId")
+                }, "info", "info.studentId = std.id")
+            .where("info.outcome = :kindOf", { kindOf: kindof })
+            .orderBy("info.avgScore")
+            .offset(offset)
+            .limit(limit)
+            .getRawMany();
     }
 }

@@ -15,6 +15,10 @@ export class SubjectService {
         return this.subjectRepository.find();
     }
 
+    public async findOneById(id: number) {
+        return this.subjectRepository.findOne(id);
+    }
+
     public async create(createSubjectDto: CreateSubjectDto): Promise<void> {
         await this.subjectRepository.save(createSubjectDto);
     }
@@ -24,17 +28,6 @@ export class SubjectService {
     }
 
     public async delete(param: DeleteSubjectDto): Promise<void> {
-        try {
-            await this.subjectRepository.delete(+param.id);
-        } catch (err) {
-            if (err.driverError.code === 'ER_NO_REFERENCED_ROW_2') {
-                throw new HttpException({
-                    status: HttpStatus.BAD_REQUEST,
-                    error: 'Cannot delete a student row: a foreign key constraint fails',
-                }, HttpStatus.BAD_REQUEST);
-            } else {
-                throw err;
-            }
-        }
+        await this.subjectRepository.delete(+param.id);
     }
 }

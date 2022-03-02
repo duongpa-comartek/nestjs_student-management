@@ -1,9 +1,8 @@
-import { IsNumber, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsNumber, IsString, Length, Max, Min } from 'class-validator';
 
 export class CreateClassDto {
     @IsString()
-    @MinLength(1)
-    @MaxLength(50)
+    @Length(1, 50)
     readonly name: string;
 
     @IsNumber()
@@ -12,7 +11,6 @@ export class CreateClassDto {
     readonly totalMember: number;
 
     @IsString()
-    @MinLength(10)
-    @MaxLength(100)
+    @Length(10.100)
     readonly teacherName: string;
 }

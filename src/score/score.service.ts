@@ -17,24 +17,31 @@ export class ScoreService {
         return this.scoreRepository.find();
     }
 
+    public findOneById(id: number) {
+        return this.scoreRepository.findOne(id);
+    }
+
+    public findScoreStudentById(studentId: number) {
+        const std = {
+            id: studentId
+        } as Student;
+        return this.scoreRepository.findOne({ student: std });
+    }
+
+    public findScoreSubjectById(subjectId: number) {
+        const sub = {
+            id: subjectId
+        } as Subject;
+        return this.scoreRepository.findOne({ subject: sub });
+    }
+
     public async create({ student, subject, ...createScoreDto }: CreateScoreDto): Promise<void> {
-        try {
-            const newScore = {
-                ...createScoreDto,
-                student: { id: student } as Student,
-                subject: { id: subject } as Subject
-            }
-            await this.scoreRepository.insert(newScore);
-        } catch (err) {
-            if (err.driverError.code === 'ER_NO_REFERENCED_ROW_2') {
-                throw new HttpException({
-                    status: HttpStatus.BAD_REQUEST,
-                    error: 'Cannot delete a student row: a foreign key constraint fails',
-                }, HttpStatus.BAD_REQUEST);
-            } else {
-                throw err;
-            }
+        const newScore = {
+            ...createScoreDto,
+            student: { id: student } as Student,
+            subject: { id: subject } as Subject
         }
+        await this.scoreRepository.insert(newScore);
     }
 
     public async update({ id, score, student, subject }: UpdateScoreDto): Promise<void> {
