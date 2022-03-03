@@ -12,13 +12,9 @@ export class GetStudentsFilterOutcome {
 
     @IsNumberString()
     @IsOptional()
-    @Min(1)
-    @Max(20)
     readonly limit?: number;
 
     @IsNumberString()
     @IsOptional()
-    @Min(0)
-    @Max(100)
     readonly offset?: number
 }

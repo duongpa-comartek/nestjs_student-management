@@ -1,10 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, StreamableFile } from '@nestjs/common';
 import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto, FindStudentByNameDto, FindGoodStudentOfClass, GetStudentsFilterOutcome } from './dto/index';
 import { Student } from './student.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import { Class } from 'src/class/class.entity';
 import { Score } from 'src/score/score.entity';
+import * as XlsxTemplate from 'xlsx-template';
+import * as fs from 'fs';
 
 @Injectable()
 export class StudentService {
@@ -15,8 +17,8 @@ export class StudentService {
 
     ) { }
 
-    public async getAll(): Promise<Student[]> {
-        return this.studentRepository.find();
+    public async getAll() {
+        return await this.studentRepository.find();
     }
 
     public async findOneById(id: number) {
@@ -54,7 +56,7 @@ export class StudentService {
         const className = findGoodStudentOfClass.name;
         const limit = (findGoodStudentOfClass.limit) ? findGoodStudentOfClass.limit : 10;
         const offset = (findGoodStudentOfClass.offset) ? findGoodStudentOfClass.offset : 0;
-        return await this.studentRepository
+        const result = await this.studentRepository
             .createQueryBuilder("std")
             .select(
                 [
@@ -75,7 +77,19 @@ export class StudentService {
             .andWhere("class.name = :name", { name: className })
             .offset(offset)
             .limit(limit)
-            .getMany();
+            .getRawMany();
+
+        //Ghi vào file
+        const data = await fs.promises.readFile('./src/templates/good_student.xlsx');
+        const template = new XlsxTemplate(data);
+        const sheetNumber = 2;
+        const values = {
+            title: className,
+            student: result as { studentId: number, std_name: string, minScore: number }[]
+        };
+        template.substitute(sheetNumber, values);
+        fs.writeFileSync('./src/templates/good_student.xlsx', template.generate('base64'), 'base64');
+        return result;
     }
 
     public async getByName(query: FindStudentByNameDto) {
@@ -88,7 +102,7 @@ export class StudentService {
         const limit = (getListOutcomes.limit) ? getListOutcomes.limit : 10;
         const offset = (getListOutcomes.offset) ? getListOutcomes.offset : 0;
         const kindof = getListOutcomes.kindof;
-        return await this.studentRepository
+        const result = await this.studentRepository
             .createQueryBuilder("std")
             .select("std.name")
             .leftJoinAndSelect(
@@ -109,5 +123,18 @@ export class StudentService {
             .offset(offset)
             .limit(limit)
             .getRawMany();
+
+
+        //Ghi vào file
+        const data = await fs.promises.readFile('./src/templates/outcome.xlsx');
+        const template = new XlsxTemplate(data);
+        const sheetNumber = 1;
+        const values = {
+            title: kindof,
+            student: result as { studentId: number, std_name: string, avgScore: number, outcome: string }[]
+        };
+        template.substitute(sheetNumber, values);
+        fs.writeFileSync('./src/templates/good_student.xlsx', template.generate('base64'), 'base64');
+        return result;
     }
 }
