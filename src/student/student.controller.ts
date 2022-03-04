@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Delete, Param, Patch, Query, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Param, Patch, Query, HttpException, HttpStatus, Inject, forwardRef, StreamableFile, Header } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto, FindStudentByNameDto, FindGoodStudentOfClass, GetStudentsFilterOutcome } from './dto/index'
 import { ClassService } from 'src/class/class.service';
@@ -68,7 +68,11 @@ export class StudentController {
         return this.studentService.getByName(query);
     }
 
-    @Get('outcome')
+    @Get('learning_outcome')
+    @Header(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
     async getListOutcomes(@Query() query: GetStudentsFilterOutcome) {
         return this.studentService.getListOutcomes(query);
     }

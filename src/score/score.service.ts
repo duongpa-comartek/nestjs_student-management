@@ -1,4 +1,5 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from 'src/student/student.entity';
 import { Subject } from 'src/subject/subject.entity';
@@ -10,7 +11,8 @@ import { Score } from './score.entity';
 export class ScoreService {
     constructor(
         @InjectRepository(Score)
-        private scoreRepository: Repository<Score>
+        private readonly scoreRepository: Repository<Score>,
+        private readonly mailerService: MailerService
     ) { }
 
     public async getAll(): Promise<Score[]> {
@@ -54,19 +56,7 @@ export class ScoreService {
         await this.scoreRepository.delete(+param.id);
     }
 
-    public async isGoodStudent(studentID: number) {
-        // const result = await this.scoreRepository.createQueryBuilder("score")
-        //     .where("score.studentID = :id", { id: studentID })
-        //     .getCount();
-
-        // const temp = await this.scoreRepository.createQueryBuilder("score")
-        //     .where("score.studentID = :id AND score.score > :score", { id: studentID, score: 8.5 })
-        //     .getCount();
-
-        // if (result === temp) {
-        //     return true;
-        // } else {
-        //     return false;
-        // }
+    public async hasScoreSubject(studentId: number) {
+        return await this.scoreRepository.count({ student: { id: studentId } as Student });
     }
 }

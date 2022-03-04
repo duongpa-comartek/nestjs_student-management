@@ -5,12 +5,14 @@ import { ScoreService } from './score.service';
 import { Score } from './score.entity'
 import { StudentModule } from 'src/student/student.module';
 import { SubjectModule } from 'src/subject/subject.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Score]),
     forwardRef(() => StudentModule),
-    forwardRef(() => SubjectModule)
+    forwardRef(() => SubjectModule),
+    forwardRef(() => MailModule),
   ],
   controllers: [ScoreController],
   providers: [ScoreService],
