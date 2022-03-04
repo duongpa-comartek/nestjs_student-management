@@ -59,4 +59,22 @@ export class ScoreService {
     public async hasScoreSubject(studentId: number) {
         return await this.scoreRepository.count({ student: { id: studentId } as Student });
     }
+
+    public async outcome(studentId: number) {
+        return await this.scoreRepository
+            .createQueryBuilder('score')
+            .select('score')
+            .leftJoinAndSelect('score.subject', 'subject')
+            .where('studentId = :id', { id: studentId })
+            .getRawMany();
+    }
+
+    public async avgScore(studentId: number) {
+        const info = await this.scoreRepository
+            .createQueryBuilder()
+            .addSelect('AVG(score)', 'avg')
+            .where('studentId = :id', { id: studentId })
+            .getRawOne();
+        return info.avg;
+    }
 }
