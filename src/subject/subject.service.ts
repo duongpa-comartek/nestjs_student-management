@@ -30,4 +30,8 @@ export class SubjectService {
     public async delete(param: DeleteSubjectDto): Promise<void> {
         await this.subjectRepository.delete(+param.id);
     }
+
+    public async hasSubject(): Promise<number> {
+        return await this.subjectRepository.count();
+    }
 }

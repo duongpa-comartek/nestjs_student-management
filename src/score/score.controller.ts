@@ -1,20 +1,20 @@
-
 import { Controller, Get, Post, Body, Delete, Param, Patch, Inject, forwardRef, HttpException, HttpStatus } from '@nestjs/common';
 import { ScoreService } from './score.service';
 import { CreateScoreDto, UpdateScoreDto, DeleteScoreDto } from './dto/index';
 import { StudentService } from 'src/student/student.service';
 import { SubjectService } from 'src/subject/subject.service';
+import { MailService } from 'src/mail/mail.service';
+import { SendMailDto } from 'src/mail/dto/send-mail.dto';
 
 @Controller('score')
 export class ScoreController {
     constructor(
         private readonly scoreService: ScoreService,
-
         @Inject(forwardRef(() => StudentService))
         private readonly studentService: StudentService,
-
         @Inject(forwardRef(() => SubjectService))
-        private readonly subjectService: SubjectService
+        private readonly subjectService: SubjectService,
+        private readonly mailService: MailService
     ) { }
 
     @Get()
@@ -46,12 +46,33 @@ export class ScoreController {
                 error: `Bad Request: Student cannot found!`,
             }, HttpStatus.BAD_REQUEST);
         }
+        // Thêm vào score
+        const result = this.scoreService.create(score);
 
-        return this.scoreService.create(score);
+        //Thông báo điểm nếu thành công
+        if (result) {
+            const title = `You got your ${subject.name} results!`;
+            this.mailService.sendMail({
+                name: student.name,
+                email: 'duongvpyltk@gmail.com',
+                info: title
+            });
+        }
+
+        //Thông báo kết quả học tập nếu cố điểm các môn
+        // if (this.scoreService.hasScoreSubject(student.id) === this.subjectService.hasSubject()) {
+        //     const info = `You've got a summary of your study results!`;
+        //     this.mailService.sendMail({
+        //         name: student.name,
+        //         email: student.email,
+        //         info: info
+        //     });
+        // }
     }
 
     @Patch()
     async update(@Body() score: UpdateScoreDto) {
+
         return this.scoreService.update(score);
     }
 

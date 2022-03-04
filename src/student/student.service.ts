@@ -7,6 +7,7 @@ import { Class } from 'src/class/class.entity';
 import { Score } from 'src/score/score.entity';
 import * as XlsxTemplate from 'xlsx-template';
 import * as fs from 'fs';
+import { TypeOutcomes } from './dto/get-student-filter-outcome.dto';
 
 @Injectable()
 export class StudentService {
@@ -58,11 +59,7 @@ export class StudentService {
         const offset = (findGoodStudentOfClass.offset) ? findGoodStudentOfClass.offset : 0;
         const result = await this.studentRepository
             .createQueryBuilder("std")
-            .select(
-                [
-                    "std.name"
-                ]
-            )
+            .select("std.name")
             .leftJoin("std.class", "class")
             .leftJoinAndSelect(
                 subQuery => {
@@ -124,17 +121,17 @@ export class StudentService {
             .limit(limit)
             .getRawMany();
 
-
         //Ghi vào file
-        const data = await fs.promises.readFile('./src/templates/outcome.xlsx');
+        const data = await fs.promises.readFile('./src/templates/leaning_outcome.xlsx');
         const template = new XlsxTemplate(data);
-        const sheetNumber = 1;
         const values = {
-            title: kindof,
-            student: result as { studentId: number, std_name: string, avgScore: number, outcome: string }[]
+            outcome: kindof,
+            std: result as { studentId: number, std_name: string, avgScore: number, outcome: string }[]
         };
-        template.substitute(sheetNumber, values);
-        fs.writeFileSync('./src/templates/good_student.xlsx', template.generate('base64'), 'base64');
-        return result;
+        template.substitute(1, values);
+        // fs.writeFileSync('./src/templates/outcome.xlsx', template.generate('base64'), 'base64');
+        return new StreamableFile(
+            Buffer.from(template.generate('base64'), 'base64')
+        );
     }
 }
