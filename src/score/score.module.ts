@@ -6,6 +6,7 @@ import { Score } from './score.entity'
 import { StudentModule } from 'src/student/student.module';
 import { SubjectModule } from 'src/subject/subject.module';
 import { MailModule } from 'src/mail/mail.module';
+import { ClassModule } from 'src/class/class.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MailModule } from 'src/mail/mail.module';
     forwardRef(() => StudentModule),
     forwardRef(() => SubjectModule),
     forwardRef(() => MailModule),
+    forwardRef(() => ClassModule),
   ],
   controllers: [ScoreController],
   providers: [ScoreService],

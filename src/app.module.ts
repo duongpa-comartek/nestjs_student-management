@@ -12,7 +12,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailModule } from './mail/mail.module';
 import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
-import * as path from 'path';
 
 @Module({
   imports: [

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from 'src/student/student.entity';
 import { Subject } from 'src/subject/subject.entity';
 import { FindConditions, Repository } from 'typeorm';
-import { CreateScoreDto, DeleteScoreDto, UpdateScoreDto } from './dto';
+import { CreateScoreDto, DeleteScoreDto, UpdateScoreDto, HasScoreDto } from './dto';
 import { Score } from './score.entity';
 
 @Injectable()
@@ -37,6 +37,17 @@ export class ScoreService {
         return this.scoreRepository.findOne({ subject: sub });
     }
 
+    public async hasScore(hasScoreDto: HasScoreDto) {
+        return await this.scoreRepository.findOne({
+            student: {
+                id: hasScoreDto.student
+            } as Student,
+            subject: {
+                id: hasScoreDto.subject
+            } as Subject
+        });
+    }
+
     public async create({ student, subject, ...createScoreDto }: CreateScoreDto): Promise<void> {
         const newScore = {
             ...createScoreDto,
@@ -58,5 +69,23 @@ export class ScoreService {
 
     public async hasScoreSubject(studentId: number) {
         return await this.scoreRepository.count({ student: { id: studentId } as Student });
+    }
+
+    public async outcome(studentId: number) {
+        return await this.scoreRepository
+            .createQueryBuilder('score')
+            .select('score')
+            .leftJoinAndSelect('score.subject', 'subject')
+            .where('studentId = :id', { id: studentId })
+            .getRawMany();
+    }
+
+    public async avgScore(studentId: number) {
+        const info = await this.scoreRepository
+            .createQueryBuilder()
+            .addSelect('AVG(score)', 'avg')
+            .where('studentId = :id', { id: studentId })
+            .getRawOne();
+        return info.avg;
     }
 }

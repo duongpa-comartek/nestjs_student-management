@@ -16,7 +16,7 @@ export class ClassService {
     }
 
     public async findOneById(id: number) {
-        return this.classRepository.findOne({ id });
+        return await this.classRepository.findOne({ id });
     }
 
     public async getListStudents() {

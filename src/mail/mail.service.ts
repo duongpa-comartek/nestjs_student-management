@@ -1,7 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { info } from 'console';
-import { SendMailDto } from './dto/send-mail.dto'
+import { SendMailDto, SendOutcomeMailDto } from './dto/index';
 
 @Injectable()
 export class MailService {
@@ -11,14 +10,43 @@ export class MailService {
 
     public async sendMail(sendMailDto: SendMailDto) {
         const date = new Date();
-        console.log(sendMailDto.email);
         await this.mailerService.sendMail({
             to: sendMailDto.email,
-            subject: 'You have a new study result!', // Subject line
+            subject: 'Bạn có kết quả học tập mới!', //Subject line
             template: 'score',
+            attachments: [
+                {
+                    filename: 'result.xlsx',
+                    contentType:
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    content: sendMailDto.data,
+                },
+            ],
             context: {
                 name: sendMailDto.name,
-                info: sendMailDto.info,
+                score: sendMailDto.score,
+                subject: sendMailDto.subject,
+                date: date
+            }
+        });
+    }
+
+    public async sendOutcomeMail(sendOutcomeMail: SendOutcomeMailDto) {
+        const date = new Date();
+        await this.mailerService.sendMail({
+            to: sendOutcomeMail.email,
+            subject: 'Bạn có kết quả học tập tất cả các môn học!',
+            template: 'outcome',
+            attachments: [
+                {
+                    filename: 'result.xlsx',
+                    contentType:
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    content: sendOutcomeMail.data,
+                },
+            ],
+            context: {
+                name: sendOutcomeMail.name,
                 date: date
             }
         });
