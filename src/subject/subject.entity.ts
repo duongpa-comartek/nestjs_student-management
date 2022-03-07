@@ -23,5 +23,5 @@ export class Subject {
     type: TypeSubject;
 
     @OneToMany(() => Score, score => score.subject)
-    scores: Score
+    scores: Score[];
 }

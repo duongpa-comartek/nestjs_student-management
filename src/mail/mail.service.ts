@@ -12,7 +12,7 @@ export class MailService {
         const date = new Date();
         await this.mailerService.sendMail({
             to: sendMailDto.email,
-            subject: 'Bạn có kết quả học tập mới!', // Subject line
+            subject: 'Bạn có kết quả học tập mới!', //Subject line
             template: 'score',
             attachments: [
                 {

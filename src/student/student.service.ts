@@ -1,4 +1,4 @@
-import { Injectable, StreamableFile } from '@nestjs/common';
+import { ConsoleLogger, Injectable, StreamableFile } from '@nestjs/common';
 import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto, FindStudentByNameDto, FindGoodStudentOfClass, GetStudentsFilterOutcome } from './dto/index';
 import { Student } from './student.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { Score } from 'src/score/score.entity';
 import * as XlsxTemplate from 'xlsx-template';
 import * as fs from 'fs';
 import { TypeOutcomes } from './dto/get-student-filter-outcome.dto';
+import { info } from 'console';
 
 @Injectable()
 export class StudentService {
@@ -31,6 +32,15 @@ export class StudentService {
             id: classId
         } as Class;
         return this.studentRepository.findOne({ class: _class });
+    }
+
+    public async inClass(studentId: number) {
+        const _class = await this.studentRepository
+            .createQueryBuilder('student')
+            .leftJoinAndSelect('student.class', 'class')
+            .where('student.id = :id', { id: studentId })
+            .getRawOne();
+        return _class.class_name
     }
 
     public async create({ class: _class, ...createStudentDto }: CreateStudentDto): Promise<void> {

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from 'src/student/student.entity';
 import { Subject } from 'src/subject/subject.entity';
 import { FindConditions, Repository } from 'typeorm';
-import { CreateScoreDto, DeleteScoreDto, UpdateScoreDto } from './dto';
+import { CreateScoreDto, DeleteScoreDto, UpdateScoreDto, HasScoreDto } from './dto';
 import { Score } from './score.entity';
 
 @Injectable()
@@ -35,6 +35,17 @@ export class ScoreService {
             id: subjectId
         } as Subject;
         return this.scoreRepository.findOne({ subject: sub });
+    }
+
+    public async hasScore(hasScoreDto: HasScoreDto) {
+        return await this.scoreRepository.findOne({
+            student: {
+                id: hasScoreDto.student
+            } as Student,
+            subject: {
+                id: hasScoreDto.subject
+            } as Subject
+        });
     }
 
     public async create({ student, subject, ...createScoreDto }: CreateScoreDto): Promise<void> {

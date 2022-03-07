@@ -29,6 +29,7 @@ export class ScoreController {
 
     @Post()
     async create(@Body() score: CreateScoreDto) {
+        //Kiểm tra xem học sinh và môn học có tồn tại không
         const student = await this.studentService.findOneById(score.student);
         const subject = await this.subjectService.findOneById(score.subject);
         if (!subject && !student) {
@@ -51,6 +52,16 @@ export class ScoreController {
                 error: `Bad Request: Student cannot found!`,
             }, HttpStatus.BAD_REQUEST);
         }
+
+        // Nếu điểm đã tồn tại thì không thể thêm vào
+        const hasScore = Boolean(await this.scoreService.hasScore(score));
+        if (hasScore) {
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: `Bad Request: Score already exists!`,
+            }, HttpStatus.BAD_REQUEST);
+        }
+
         // Thêm vào score
         const result = this.scoreService.create(score);
 
@@ -61,23 +72,22 @@ export class ScoreController {
             const values = {
                 subject: subject.name,
                 std: student,
-                score: score.score
+                score: score.score,
+                class: await this.studentService.inClass(student.id)
             };
             template.substitute(1, values);
             const dataFile = Buffer.from(template.generate('base64'), 'base64');
 
             this.mailService.sendMail({
                 name: student.name,
-                email: 'duongvpyltk@gmail.com',
+                email: student.email,
                 subject: subject.name,
                 score: score.score,
                 data: dataFile
             });
         }
-        // console.log(this.scoreService.hasScoreSubject(student.id));
-        // console.log(this.subjectService.hasSubject());
 
-        // Thông báo kết quả học tập nếu cố điểm các môn
+        // Thông báo kết quả học tập nếu có điểm các môn
         if (await this.scoreService.hasScoreSubject(student.id) == await this.subjectService.hasSubject()) {
             const outcome = await this.scoreService.outcome(student.id);
             const avg = await this.scoreService.avgScore(student.id);
@@ -102,6 +112,8 @@ export class ScoreController {
                 data: dataFile
             });
         }
+
+        return result;
     }
 
     @Patch()
