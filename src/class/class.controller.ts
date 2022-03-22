@@ -36,10 +36,7 @@ export class ClassController {
     async delete(@Param() param: DeleteClassDto) {
         const student = await this.studentService.findStudentClassById(+param.id);
         if (student) {
-            throw new HttpException({
-                status: HttpStatus.BAD_REQUEST,
-                error: `Bad Request: Class has students!`,
-            }, HttpStatus.BAD_REQUEST);
+            throw new HttpException(`Bad Request: Class has students!`, HttpStatus.BAD_REQUEST);
         }
         const _class = await this.classService.findOneById(+param.id);
         if (!_class) {
